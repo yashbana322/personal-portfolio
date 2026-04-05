@@ -599,7 +599,8 @@ function App() {
     }
     window.scrollTo(0, 0);
 
-    fetch('http://localhost:5000/api/profile')
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    fetch(`${API_URL}/api/profile`)
       .then(res => res.json())
       .then(data => setProfile(data))
       .catch(err => console.error("Could not fetch profile", err));
