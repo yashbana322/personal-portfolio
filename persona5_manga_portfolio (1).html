@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0a0a0a;color:#fff;font-family:'Rajdhani',sans-serif;overflow-x:hidden;cursor:none;}
+.cursor{position:fixed;width:12px;height:12px;background:#e31c1c;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
+.cursor-trail{position:fixed;width:30px;height:30px;border:1.5px solid #e31c1c;border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all 0.15s ease;opacity:0.5;}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;background:#e31c1c;display:flex;align-items:center;justify-content:center;z-index:1000;transition:opacity 0.6s,transform 0.6s;}
+#splash.gone{opacity:0;transform:skewX(-10deg) translateX(-120%);pointer-events:none;}
+.splash-text{font-family:'Bebas Neue',cursive;font-size:96px;color:#fff;letter-spacing:8px;animation:flashIn 0.3s steps(2) forwards;}
+@keyframes flashIn{0%{opacity:0;transform:scale(1.3) skewX(-5deg);}100%{opacity:1;transform:scale(1) skewX(-5deg);}}
+
+#main{opacity:0;transition:opacity 0.5s 0.3s;}
+#main.visible{opacity:1;}
+
+/* NAV DOTS */
+.nav-dots{position:fixed;right:24px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:12px;z-index:100;}
+.dot{width:8px;height:8px;border:1.5px solid rgba(255,255,255,0.4);border-radius:50%;cursor:pointer;transition:all 0.3s;}
+.dot.active{background:#e31c1c;border-color:#e31c1c;transform:scale(1.4);}
+
+/* HERO */
+.hero{position:relative;height:100vh;background:#111;overflow:hidden;display:flex;align-items:flex-end;padding:60px;}
+.hero-bg{position:absolute;inset:0;background:#e31c1c;clip-path:polygon(0 0,60% 0,45% 100%,0 100%);}
+.slash-lines{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.slash-lines::before,.slash-lines::after{content:'';position:absolute;background:rgba(255,255,255,0.07);width:3px;height:200%;transform:rotate(-30deg);top:-50%;}
+.slash-lines::before{left:42%;}
+.slash-lines::after{left:50%;background:rgba(255,255,255,0.04);width:8px;}
+.hero-content{position:relative;z-index:2;}
+.hero-eyebrow{font-size:13px;letter-spacing:6px;color:#fff;text-transform:uppercase;margin-bottom:8px;opacity:0;animation:slideUp 0.5s 1.2s forwards;}
+.hero-name{font-family:'Bebas Neue',cursive;font-size:clamp(60px,10vw,120px);line-height:0.9;color:#fff;letter-spacing:4px;opacity:0;animation:slideUp 0.5s 1.4s forwards;}
+.hero-name .accent{color:#111;}
+.hero-subtitle{font-size:18px;font-weight:600;color:rgba(255,255,255,0.7);margin-top:16px;letter-spacing:2px;opacity:0;animation:slideUp 0.5s 1.6s forwards;}
+.hero-tag{position:absolute;right:60px;top:50%;transform:translateY(-50%) rotate(-8deg);background:#111;color:#fff;padding:14px 20px;font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:3px;border:2px solid #fff;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));opacity:0;animation:popIn 0.4s 1.8s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+
+/* ═══ MANGA SECTION ═══ */
+.manga-section{position:relative;background:#fff;overflow:hidden;min-height:100vh;}
+
+/* Halftone dot pattern via SVG background */
+.halftone-bg{position:absolute;inset:0;background-image:radial-gradient(circle,#111 1px,transparent 1px);background-size:12px 12px;opacity:0.06;pointer-events:none;}
+
+/* Speed lines radiating from center */
+.speed-lines{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+
+/* Panel layout */
+.manga-panels{position:relative;z-index:2;display:grid;grid-template-columns:55% 45%;grid-template-rows:60% 40%;height:100vh;}
+
+/* Individual panels with thick manga borders */
+.panel{position:relative;border:4px solid #111;overflow:hidden;background:#fff;}
+.panel-red{background:#e31c1c;}
+.panel-black{background:#111;}
+
+/* Manga cross-hatch texture using repeating lines */
+.hatch{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.hatch::before{content:'';position:absolute;inset:-100%;background-image:repeating-linear-gradient(45deg,rgba(0,0,0,0.07) 0px,rgba(0,0,0,0.07) 1px,transparent 1px,transparent 8px);background-size:11.3px 11.3px;}
+.hatch-white::before{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.06) 0px,rgba(255,255,255,0.06) 1px,transparent 1px,transparent 8px);}
+
+/* Big manga hand illustration using CSS */
+.manga-hand-area{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+
+/* About me speech bubble — jagged polygon */
+.speech-bubble{position:absolute;background:#111;color:#fff;padding:12px 22px;font-family:'Bebas Neue',cursive;font-size:26px;letter-spacing:3px;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));z-index:10;white-space:nowrap;}
+
+/* Manga action word */
+.manga-action{font-family:'Bebas Neue',cursive;font-size:clamp(40px,8vw,90px);line-height:0.85;letter-spacing:5px;color:#111;transform:skewX(-5deg);}
+.manga-action.white{color:#fff;}
+.manga-action.red{color:#e31c1c;}
+
+/* Jagged panel border overlay for diagonal cut */
+.panel-slash{position:absolute;inset:0;pointer-events:none;z-index:5;}
+
+/* Manga sticker labels */
+.manga-sticker{display:inline-block;background:#111;color:#fff;font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:3px;padding:4px 14px;margin:4px;transform:rotate(-2deg);}
+.manga-sticker.red{background:#e31c1c;}
+.manga-sticker.outline{background:transparent;border:2px solid #111;color:#111;}
+
+/* Stars and shapes for decoration */
+.star-deco{position:absolute;color:#111;font-family:'Bebas Neue',cursive;font-size:clamp(16px,3vw,28px);font-weight:900;line-height:1;transform:rotate(-15deg);opacity:0.7;}
+
+/* Scatter text (manga background noise) */
+.scatter-text{position:absolute;font-family:'Bebas Neue',cursive;color:rgba(0,0,0,0.08);font-size:clamp(20px,4vw,40px);letter-spacing:2px;white-space:nowrap;pointer-events:none;}
+
+/* Bottom panels row */
+.panel-bottom-left{grid-column:1;grid-row:2;border-top:6px solid #111;}
+.panel-bottom-right{grid-column:2;grid-row:2;border-top:6px solid #111;border-left:4px solid #111;}
+
+/* Skills/work section */
+.work-section{background:#0d0d0d;min-height:100vh;padding:80px 60px;position:relative;overflow:hidden;}
+.section-label{font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-bottom:20px;}
+.section-heading{font-family:'Bebas Neue',cursive;font-size:clamp(50px,8vw,90px);line-height:0.9;letter-spacing:3px;}
+.red-bar{display:block;background:#e31c1c;height:5px;width:60px;margin:20px 0;}
+.big-section-num{font-family:'Bebas Neue',cursive;font-size:200px;position:absolute;right:40px;bottom:-20px;color:rgba(255,255,255,0.03);line-height:1;pointer-events:none;user-select:none;}
+.work-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:40px;}
+.work-card{position:relative;height:240px;background:#1a1a1a;overflow:hidden;cursor:pointer;transition:transform 0.3s;}
+.work-card:hover{transform:scale(0.97);}
+.work-card-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.work-num{font-family:'Bebas Neue',cursive;font-size:120px;color:rgba(255,255,255,0.04);user-select:none;}
+.work-card-inner{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 60%);transition:background 0.3s;}
+.work-card:hover .work-card-inner{background:linear-gradient(to top,rgba(227,28,28,0.9) 0%,rgba(227,28,28,0.2) 60%);}
+.work-type{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#e31c1c;margin-bottom:6px;transition:color 0.3s;}
+.work-card:hover .work-type{color:#fff;}
+.work-title{font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:2px;line-height:1;}
+
+/* CONTACT */
+.contact-section{background:#e31c1c;min-height:60vh;display:flex;align-items:center;padding:80px 60px;position:relative;overflow:hidden;}
+.contact-hatch{position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(0,0,0,0.04) 0px,rgba(0,0,0,0.04) 1px,transparent 1px,transparent 10px);}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;width:100%;align-items:center;position:relative;z-index:2;}
+.contact-heading{font-family:'Bebas Neue',cursive;font-size:clamp(60px,10vw,110px);line-height:0.85;letter-spacing:4px;color:#111;}
+.contact-links{display:flex;flex-direction:column;gap:12px;}
+.contact-link{display:flex;align-items:center;gap:20px;padding:18px 24px;background:#111;color:#fff;text-decoration:none;font-size:16px;font-weight:600;letter-spacing:3px;text-transform:uppercase;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));transition:all 0.2s;cursor:pointer;}
+.contact-link:hover{background:#fff;color:#e31c1c;gap:28px;}
+.link-arrow{font-size:20px;margin-left:auto;}
+
+/* ANIMATIONS */
+@keyframes slideUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes popIn{from{opacity:0;transform:translateY(-50%) rotate(-8deg) scale(0.7);}to{opacity:1;transform:translateY(-50%) rotate(-8deg) scale(1);}}
+
+.reveal{opacity:0;transform:translateY(40px);transition:opacity 0.6s,transform 0.6s;}
+.reveal.revealed{opacity:1;transform:translateY(0);}
+.reveal:nth-child(2){transition-delay:0.1s;}
+.reveal:nth-child(3){transition-delay:0.2s;}
+.reveal:nth-child(4){transition-delay:0.3s;}
+.reveal:nth-child(5){transition-delay:0.4s;}
+
+/* Manga panel reveal */
+.manga-reveal{opacity:0;transform:scale(0.95);transition:opacity 0.5s,transform 0.5s;}
+.manga-reveal.revealed{opacity:1;transform:scale(1);}
+
+/* SVG hand styles */
+.manga-svg{position:absolute;inset:0;width:100%;height:100%;}
+
+/* Skill tags */
+.skill-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+.skill-tag{padding:5px 14px;background:transparent;border:2px solid #111;color:#111;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:all 0.2s;cursor:default;}
+.skill-tag:hover{background:#111;color:#fff;}
+
+/* Noise */
+.noise{position:fixed;inset:0;pointer-events:none;z-index:9997;opacity:0.02;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px;}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cur"></div>
+<div class="cursor-trail" id="cur2"></div>
+<div class="noise"></div>
+
+<!-- SPLASH -->
+<div id="splash"><div class="splash-text">PERSONA</div></div>
+
+<div id="main">
+
+  <div class="nav-dots">
+    <div class="dot active" onclick="window.scrollTo({top:0,behavior:'smooth'})"></div>
+    <div class="dot" onclick="document.querySelector('.manga-section').scrollIntoView({behavior:'smooth'})"></div>
+    <div class="dot" onclick="document.querySelector('.work-section').scrollIntoView({behavior:'smooth'})"></div>
+    <div class="dot" onclick="document.querySelector('.contact-section').scrollIntoView({behavior:'smooth'})"></div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="slash-lines"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Portfolio · 2025</div>
+      <div class="hero-name">PHANTOM<br><span class="accent">DEV</span></div>
+      <div class="hero-subtitle">Designer · Developer · Creator</div>
+    </div>
+    <div class="hero-tag">SCROLL ↓</div>
+  </section>
+
+  <!-- ═══ MANGA ABOUT SECTION ═══ -->
+  <section class="manga-section">
+    <div class="halftone-bg"></div>
+
+    <!-- Scattered manga background text -->
+    <div class="scatter-text" style="top:8%;left:5%;transform:rotate(-3deg);">DON'T LOOK AT ME</div>
+    <div class="scatter-text" style="top:15%;right:2%;transform:rotate(5deg);font-size:clamp(14px,2vw,24px);">LIKE THAT</div>
+    <div class="scatter-text" style="bottom:32%;right:3%;transform:rotate(-2deg);font-size:clamp(18px,3vw,36px);">COMMAND SELECT</div>
+    <div class="scatter-text" style="bottom:25%;right:8%;transform:rotate(3deg);font-size:clamp(10px,1.5vw,18px);opacity:0.05;">MENU & MAIN</div>
+
+    <!-- Star decorations (right side chaos cluster) -->
+    <div class="star-deco" style="top:10%;right:5%;">★</div>
+    <div class="star-deco" style="top:20%;right:12%;font-size:20px;transform:rotate(10deg);">★</div>
+    <div class="star-deco" style="top:30%;right:4%;font-size:36px;transform:rotate(-5deg);">✦</div>
+    <div class="star-deco" style="top:42%;right:14%;font-size:16px;">★</div>
+    <div class="star-deco" style="bottom:35%;right:6%;font-size:28px;transform:rotate(20deg);">✦</div>
+    <div class="star-deco" style="bottom:28%;right:16%;font-size:22px;transform:rotate(-10deg);">★</div>
+
+    <!-- Zigzag/lightning bolt border right side -->
+    <svg style="position:absolute;right:0;top:0;bottom:0;height:100%;width:clamp(60px,12vw,120px);z-index:3;" viewBox="0 0 120 800" preserveAspectRatio="none">
+      <polygon points="120,0 40,0 0,50 40,100 0,150 40,200 0,250 40,300 0,350 40,400 0,450 40,500 0,550 40,600 0,650 40,700 0,750 40,800 120,800" fill="#111" stroke="none"/>
+      <!-- Stars layered on dark right panel -->
+      <text x="60" y="80" fill="white" font-family="serif" font-size="28" text-anchor="middle">★</text>
+      <text x="60" y="180" fill="white" font-family="serif" font-size="18" text-anchor="middle">★</text>
+      <text x="60" y="260" fill="white" font-family="serif" font-size="36" text-anchor="middle">✦</text>
+      <text x="60" y="360" fill="white" font-family="serif" font-size="22" text-anchor="middle">★</text>
+      <text x="60" y="450" fill="white" font-family="serif" font-size="14" text-anchor="middle">★</text>
+      <text x="60" y="540" fill="white" font-family="serif" font-size="30" text-anchor="middle">✦</text>
+      <text x="60" y="640" fill="white" font-family="serif" font-size="20" text-anchor="middle">★</text>
+    </svg>
+
+    <!-- MAIN MANGA PANELS GRID -->
+    <div class="manga-panels manga-reveal">
+
+      <!-- TOP LEFT: Big red panel with SVG hand -->
+      <div class="panel panel-red" style="grid-column:1;grid-row:1;">
+        <div class="hatch hatch-white"></div>
+
+        <!-- SVG hand illustration -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet">
+          <!-- Arm / sleeve -->
+          <ellipse cx="260" cy="560" rx="140" ry="200" fill="#111"/>
+          <ellipse cx="180" cy="520" rx="100" ry="180" fill="#111"/>
+          <!-- Palm -->
+          <ellipse cx="230" cy="340" rx="110" ry="130" fill="#f0ede8"/>
+          <!-- Thumb -->
+          <ellipse cx="108" cy="310" rx="38" ry="70" fill="#f0ede8" transform="rotate(-20 108 310)"/>
+          <!-- Index finger -->
+          <rect x="185" y="120" width="52" height="160" rx="26" fill="#f0ede8"/>
+          <!-- Middle finger (tallest) -->
+          <rect x="248" y="80" width="52" height="190" rx="26" fill="#f0ede8"/>
+          <!-- Ring finger -->
+          <rect x="311" y="130" width="50" height="160" rx="25" fill="#f0ede8"/>
+          <!-- Pinky (folded — shorter) -->
+          <rect x="370" y="200" width="42" height="110" rx="21" fill="#f0ede8"/>
+          <!-- Knuckle lines on hand -->
+          <line x1="190" y1="295" x2="230" y2="285" stroke="#ccc" stroke-width="2" stroke-linecap="round"/>
+          <line x1="250" y1="285" x2="295" y2="280" stroke="#ccc" stroke-width="2" stroke-linecap="round"/>
+          <line x1="315" y1="295" x2="355" y2="300" stroke="#ccc" stroke-width="2" stroke-linecap="round"/>
+          <!-- Outline strokes -->
+          <ellipse cx="230" cy="340" rx="110" ry="130" fill="none" stroke="#111" stroke-width="4"/>
+          <rect x="185" y="120" width="52" height="160" rx="26" fill="none" stroke="#111" stroke-width="4"/>
+          <rect x="248" y="80" width="52" height="190" rx="26" fill="none" stroke="#111" stroke-width="4"/>
+          <rect x="311" y="130" width="50" height="160" rx="25" fill="none" stroke="#111" stroke-width="4"/>
+          <rect x="370" y="200" width="42" height="110" rx="21" fill="none" stroke="#111" stroke-width="4"/>
+          <ellipse cx="108" cy="310" rx="38" ry="70" fill="none" stroke="#111" stroke-width="4" transform="rotate(-20 108 310)"/>
+          <!-- Red diagonal slash on palm -->
+          <rect x="155" y="250" width="230" height="60" rx="4" fill="#e31c1c" transform="rotate(-15 260 280)"/>
+          <!-- About me bubble ON the hand -->
+          <rect x="130" y="265" width="170" height="44" rx="0" fill="#111"/>
+          <text x="215" y="294" fill="#fff" font-family="'Bebas Neue',cursive" font-size="26" text-anchor="middle" letter-spacing="3">About me</text>
+          <!-- Halftone dots on palm -->
+          <circle cx="195" cy="380" r="3" fill="#e31c1c" opacity="0.4"/>
+          <circle cx="215" cy="390" r="3" fill="#e31c1c" opacity="0.4"/>
+          <circle cx="235" cy="380" r="3" fill="#e31c1c" opacity="0.4"/>
+          <circle cx="255" cy="390" r="3" fill="#e31c1c" opacity="0.4"/>
+          <circle cx="275" cy="380" r="3" fill="#e31c1c" opacity="0.4"/>
+          <circle cx="295" cy="390" r="3" fill="#e31c1c" opacity="0.4"/>
+          <circle cx="205" cy="400" r="3" fill="#e31c1c" opacity="0.4"/>
+          <circle cx="225" cy="410" r="3" fill="#e31c1c" opacity="0.4"/>
+          <circle cx="245" cy="400" r="3" fill="#e31c1c" opacity="0.4"/>
+          <circle cx="265" cy="410" r="3" fill="#e31c1c" opacity="0.4"/>
+          <circle cx="285" cy="400" r="3" fill="#e31c1c" opacity="0.4"/>
+        </svg>
+
+        <!-- COMMAND text at bottom -->
+        <div style="position:absolute;bottom:20px;left:0;right:0;text-align:center;z-index:10;">
+          <div style="font-family:'Bebas Neue',cursive;font-size:clamp(28px,5vw,56px);letter-spacing:6px;color:#111;transform:skewX(-5deg);display:inline-block;">CoMMAND</div>
+        </div>
+      </div>
+
+      <!-- TOP RIGHT: Black chaotic panel -->
+      <div class="panel panel-black" style="grid-column:2;grid-row:1;border-left:6px solid #111;">
+        <div class="hatch hatch-white"></div>
+
+        <!-- Speed lines emanating from upper area -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.15;" viewBox="0 0 300 400" preserveAspectRatio="none">
+          <line x1="150" y1="80" x2="0" y2="0" stroke="white" stroke-width="1"/>
+          <line x1="150" y1="80" x2="50" y2="0" stroke="white" stroke-width="1"/>
+          <line x1="150" y1="80" x2="150" y2="0" stroke="white" stroke-width="1"/>
+          <line x1="150" y1="80" x2="250" y2="0" stroke="white" stroke-width="1"/>
+          <line x1="150" y1="80" x2="300" y2="0" stroke="white" stroke-width="1"/>
+          <line x1="150" y1="80" x2="0" y2="100" stroke="white" stroke-width="1"/>
+          <line x1="150" y1="80" x2="0" y2="200" stroke="white" stroke-width="1"/>
+          <line x1="150" y1="80" x2="0" y2="300" stroke="white" stroke-width="1"/>
+          <line x1="150" y1="80" x2="300" y2="100" stroke="white" stroke-width="1"/>
+          <line x1="150" y1="80" x2="300" y2="200" stroke="white" stroke-width="1"/>
+          <line x1="150" y1="80" x2="300" y2="300" stroke="white" stroke-width="1"/>
+          <line x1="150" y1="80" x2="100" y2="400" stroke="white" stroke-width="1"/>
+          <line x1="150" y1="80" x2="200" y2="400" stroke="white" stroke-width="1"/>
+        </svg>
+
+        <!-- Character silhouette hint -->
+        <svg style="position:absolute;bottom:0;right:0;width:70%;height:80%;opacity:0.6;" viewBox="0 0 200 300" preserveAspectRatio="xMaxYMax meet">
+          <!-- Head -->
+          <ellipse cx="100" cy="50" rx="38" ry="44" fill="#222"/>
+          <!-- Hair -->
+          <ellipse cx="100" cy="30" rx="40" ry="30" fill="#111"/>
+          <rect x="62" y="20" width="76" height="35" rx="0" fill="#111"/>
+          <!-- Glasses -->
+          <rect x="74" y="50" width="22" height="14" rx="3" fill="none" stroke="#555" stroke-width="2.5"/>
+          <rect x="104" y="50" width="22" height="14" rx="3" fill="none" stroke="#555" stroke-width="2.5"/>
+          <line x1="96" y1="57" x2="104" y2="57" stroke="#555" stroke-width="2"/>
+          <!-- Neck -->
+          <rect x="88" y="90" width="24" height="20" rx="0" fill="#222"/>
+          <!-- Jacket -->
+          <path d="M60 110 L30 300 L170 300 L140 110 Q100 130 60 110Z" fill="#111"/>
+          <line x1="100" y1="115" x2="100" y2="290" stroke="#333" stroke-width="1.5"/>
+        </svg>
+
+        <!-- Text cluster -->
+        <div style="position:absolute;top:20px;left:20px;z-index:5;">
+          <div style="font-family:'Bebas Neue',cursive;color:#e31c1c;font-size:clamp(14px,3vw,28px);letter-spacing:4px;transform:skewX(-3deg);">MENU & MAIN</div>
+          <div style="font-family:'Bebas Neue',cursive;color:rgba(255,255,255,0.3);font-size:11px;letter-spacing:6px;">COMMAND SELECT</div>
+        </div>
+
+        <!-- 01 big number -->
+        <div style="position:absolute;bottom:10px;left:20px;font-family:'Bebas Neue',cursive;font-size:clamp(60px,12vw,120px);color:rgba(255,255,255,0.08);line-height:1;user-select:none;">01</div>
+      </div>
+
+      <!-- BOTTOM LEFT: About info -->
+      <div class="panel" style="grid-column:1;grid-row:2;background:#f5f5f0;border-top:6px solid #111;">
+        <div class="hatch"></div>
+        <div style="position:relative;z-index:2;padding:30px 40px;height:100%;display:flex;flex-direction:column;justify-content:center;">
+          <div style="font-family:'Bebas Neue',cursive;font-size:clamp(28px,4vw,48px);color:#111;letter-spacing:3px;line-height:0.9;">WHO AM I</div>
+          <div style="width:40px;height:4px;background:#e31c1c;margin:12px 0;"></div>
+          <p style="font-size:15px;font-weight:600;color:rgba(0,0,0,0.6);line-height:1.6;max-width:480px;">A developer who steals hearts through bold interfaces and sharp code. Obsessed with motion, typography, and making experiences that feel like a whole vibe.</p>
+          <div class="skill-grid" style="margin-top:16px;">
+            <div class="skill-tag">React</div>
+            <div class="skill-tag">TypeScript</div>
+            <div class="skill-tag">CSS</div>
+            <div class="skill-tag">Figma</div>
+            <div class="skill-tag">Three.js</div>
+            <div class="skill-tag">Node</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM RIGHT: Stats panel -->
+      <div class="panel panel-black" style="grid-column:2;grid-row:2;border-top:6px solid #111;border-left:6px solid #111;">
+        <div class="hatch hatch-white"></div>
+        <div style="position:relative;z-index:2;padding:30px;height:100%;display:flex;flex-direction:column;justify-content:center;gap:16px;">
+          <div style="display:flex;gap:20px;">
+            <div style="background:#e31c1c;padding:16px 24px;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));flex:1;text-align:center;">
+              <div style="font-family:'Bebas Neue',cursive;font-size:clamp(32px,5vw,52px);line-height:1;">47</div>
+              <div style="font-size:11px;letter-spacing:3px;opacity:0.8;">PROJECTS</div>
+            </div>
+            <div style="background:#fff;padding:16px 24px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);flex:1;text-align:center;">
+              <div style="font-family:'Bebas Neue',cursive;font-size:clamp(32px,5vw,52px);line-height:1;color:#e31c1c;">5+</div>
+              <div style="font-size:11px;letter-spacing:3px;color:#111;">YEARS</div>
+            </div>
+          </div>
+          <div style="font-family:'Bebas Neue',cursive;font-size:clamp(20px,3vw,32px);letter-spacing:3px;color:rgba(255,255,255,0.15);">PHANTOM THIEF</div>
+        </div>
+      </div>
+
+    </div><!-- end manga-panels -->
+  </section>
+
+  <!-- WORK SECTION -->
+  <section class="work-section">
+    <div class="big-section-num">02</div>
+    <div style="width:100%;">
+      <div class="section-label reveal">02 · Work</div>
+      <div class="section-heading reveal">SELECTED<br>WORK</div>
+      <div class="work-grid">
+        <div class="work-card reveal"><div class="work-card-bg"><div class="work-num">01</div></div><div class="work-card-inner"><div class="work-type">Web App</div><div class="work-title">PHANTOM UI KIT</div></div></div>
+        <div class="work-card reveal"><div class="work-card-bg"><div class="work-num">02</div></div><div class="work-card-inner"><div class="work-type">3D / Interactive</div><div class="work-title">METAVERSE PORTAL</div></div></div>
+        <div class="work-card reveal"><div class="work-card-bg"><div class="work-num">03</div></div><div class="work-card-inner"><div class="work-type">Mobile</div><div class="work-title">PULSE APP</div></div></div>
+        <div class="work-card reveal"><div class="work-card-bg"><div class="work-num">04</div></div><div class="work-card-inner"><div class="work-type">Branding</div><div class="work-title">SHADOW STUDIO</div></div></div>
+        <div class="work-card reveal"><div class="work-card-bg"><div class="work-num">05</div></div><div class="work-card-inner"><div class="work-type">Dashboard</div><div class="work-title">HEIST ANALYTICS</div></div></div>
+        <div class="work-card reveal" style="background:#e31c1c;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;"><div style="font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:3px;">VIEW ALL</div><div style="font-size:12px;letter-spacing:4px;opacity:0.7;">PROJECTS →</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact-section">
+    <div class="contact-hatch"></div>
+    <div class="contact-grid">
+      <div>
+        <div class="contact-heading reveal">LET'S<br>WORK<br>TOGETHER</div>
+        <p class="reveal" style="margin-top:16px;font-size:17px;color:rgba(0,0,0,0.6);font-weight:600;letter-spacing:1px;">Currently available for freelance & full-time.</p>
+      </div>
+      <div class="contact-links">
+        <a href="mailto:you@email.com" class="contact-link reveal"><span>✉</span><span>Email Me</span><span class="link-arrow">→</span></a>
+        <a href="#" class="contact-link reveal"><span>◈</span><span>GitHub</span><span class="link-arrow">→</span></a>
+        <a href="#" class="contact-link reveal"><span>◇</span><span>Instagram</span><span class="link-arrow">→</span></a>
+        <a href="#" class="contact-link reveal"><span>◆</span><span>LinkedIn</span><span class="link-arrow">→</span></a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const cur=document.getElementById('cur'),cur2=document.getElementById('cur2');
+let mx=0,my=0,tx=0,ty=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function anim(){tx+=(mx-tx)*0.12;ty+=(my-ty)*0.12;cur2.style.left=tx+'px';cur2.style.top=ty+'px';requestAnimationFrame(anim);})();
+
+setTimeout(()=>{document.getElementById('splash').classList.add('gone');document.getElementById('main').classList.add('visible');},1800);
+
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('revealed');}),{threshold:0.1});
+document.querySelectorAll('.reveal,.manga-reveal').forEach(el=>obs.observe(el));
+
+const sections=document.querySelectorAll('.hero,.manga-section,.work-section,.contact-section');
+const dots=document.querySelectorAll('.dot');
+const secObs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){dots.forEach(d=>d.classList.remove('active'));const i=[...sections].indexOf(e.target);if(dots[i])dots[i].classList.add('active');}}),{threshold:0.5});
+sections.forEach(s=>secObs.observe(s));
+</script>
+</body>
+</html>
