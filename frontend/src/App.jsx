@@ -1,5 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring, useVelocity, AnimatePresence } from 'framer-motion';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import AnimatedGradientBackground from './components/ui/animated-gradient-background';
+import FancyTextHover from './components/ui/fancy-text-hover';
 import './index.css';
 
 /* ═══════════════════════════════════════════════════════════
@@ -26,7 +29,7 @@ const WhatWeDoSection = () => {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '80px 20px',
-      background: '#f4f4f0',
+      background: 'transparent',
     }}>
       
       <h2 style={{
@@ -191,248 +194,262 @@ const WhatWeDoSection = () => {
   );
 };
 
-const WorkSection = ({ setCursorHovering }) => {
+const NeoYashPortfolio = ({ setCurrentSite, profile }) => {
   const containerRef = useRef(null);
-  const scrollRef = useRef(null);
-
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   });
 
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 80,
-    damping: 25,
-    restDelta: 0.001
-  });
-
-  const scrollVelocity = useVelocity(smoothProgress);
-  const skewX = useTransform(scrollVelocity, [-1, 1], [8, -8]);
-  const scale = useTransform(scrollVelocity, [-1, 1], [0.98, 0.98]);
-
-  const x = useTransform(smoothProgress, [0, 1], ["0%", "-85%"]);
-  const bgX = useTransform(smoothProgress, [0, 1], ["0%", "15%"]);
-  const imgX = useTransform(smoothProgress, [0, 1], ["-10%", "10%"]);
-
-  const projects = [
-    { num: "01", title: "Lusion", desc: "Creative web development agency specializing in immersive experiences.", url: "https://lusion.co/", img: "/lusion.png" },
-    { num: "02", title: "Buzzworthy", desc: "Digital agency crafting buzzworthy experiences.", url: "https://buzzworthystudio.com/", img: "/buzzworthy.png" },
-    { num: "03", title: "ET Studio", desc: "A creative web studio pushing digital boundaries.", url: "https://www.e-t.studio/", img: "/etstudio.png" },
-    { num: "04", title: "Minecraft", desc: "Everything you need Minecraft hub - customized platform.", url: "https://everything-you-need-minecraft-hub-d-nu.vercel.app/", img: "/minecraft.png" }
-  ];
+  const heroY = useTransform(scrollYProgress, [0, 0.2], ["0%", "30%"]);
+  const marquee1 = useTransform(scrollYProgress, [0, 1], ["0%", "-100%"]);
+  const marquee2 = useTransform(scrollYProgress, [0, 1], ["-100%", "0%"]);
 
   return (
-    <section className="work-section" ref={containerRef} id="work-section">
-      <div className="work-noise-bg" />
-      <div className="work-section-sticky">
+    <div className="neo-site-full yash-crazy-neo" ref={containerRef}>
+      {/* GLOBAL NAV */}
+      <motion.nav 
+        initial={{ y: -100 }} 
+        animate={{ y: 0 }} 
+        transition={{ type: "spring", stiffness: 120, damping: 20 }}
+        className="neo-nav-top" style={{ backgroundColor: '#e0e7ff' }}
+      >
+        <div className="neo-brand">YASH_BANA ©</div>
+        <button className="neo-btn-back" style={{ background: '#c084fc', color: '#111' }} onClick={() => setCurrentSite('shivanshu')}>
+          MEET CO-FOUNDER →
+        </button>
+      </motion.nav>
+
+      {/* HERO SECTION */}
+      <section className="neo-hero" style={{ paddingTop: '150px', position: 'relative', overflow: 'hidden' }}>
         
-        <motion.div style={{ x: bgX }} className="work-bg-text">
-          <span>PROJECTS </span><span className="red">PROJECTS </span>
-          <span>PROJECTS </span><span className="red">PROJECTS </span>
+        {/* Animated Gradient Background */}
+        <AnimatedGradientBackground 
+          Breathing={true}
+          breathingRange={8}
+          gradientColors={["#fbcfe8", "#c084fc", "#38bdf8", "#818cf8", "#fbcfe8", "#38bdf8", "#6366f1"]}
+        />
+
+        <motion.div style={{ y: heroY, position: 'relative', zIndex: 10 }} className="yash-hero-content flex flex-col items-start w-full">
+          <motion.h1 
+            initial={{ x: -200, opacity: 0 }} 
+            animate={{ x: 0, opacity: 1 }} 
+            transition={{ type: "spring", stiffness: 100, damping: 10, delay: 0.1 }}
+            className="neo-mega-text" style={{ color: '#fff' }}
+          >
+            YASH BANA
+          </motion.h1>
+          <motion.h1 
+            initial={{ x: 200, opacity: 0 }} 
+            animate={{ x: 0, opacity: 1 }} 
+            transition={{ type: "spring", stiffness: 100, damping: 10, delay: 0.2 }}
+            className="neo-mega-text outline" style={{ color: 'transparent', WebkitTextStroke: '4px #fff' }}
+          >
+            FULL STACK
+          </motion.h1>
+          <motion.h1 
+            initial={{ scale: 0.5, opacity: 0 }} 
+            animate={{ scale: 1, opacity: 1 }} 
+            transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.3 }}
+            className="neo-mega-text" style={{ color: '#fff' }}
+          >
+            DEVELOPER
+          </motion.h1>
+          
+          <motion.div 
+            animate={{ rotate: [0, 5, -5, 0] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            className="neo-hero-badge bg-cyan-crazy"
+          >
+            "I build websites and much more."
+          </motion.div>
         </motion.div>
-        
-        <motion.div 
-          style={{ x, skewX, scale }} 
-          className="work-cards-wrapper" 
-          ref={scrollRef}
-          onMouseEnter={() => setCursorHovering(true)}
-          onMouseLeave={() => setCursorHovering(false)}
-        >
-          {projects.map((p, i) => {
-            const isEven = i % 2 === 0;
-            const staticYOffset = isEven ? -60 : 80;
-            return (
-              <motion.div 
-                className="work-card" 
-                key={i}
-                initial={{ y: staticYOffset }}
-                whileHover={{ y: staticYOffset - 30, scale: 1.03, rotateX: 6, rotateY: 3, zIndex: 10, transition: { duration: 0.5, ease: "easeOut" } }}
-                transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-              >
-                <div className="work-card-img-wrapper">
-                  <div className="work-card-img-overlay" />
-                  <motion.img style={{ x: imgX }} src={p.img} alt={p.title} className="work-card-img" />
-                </div>
-                <div className="work-card-content">
-                  <div className="work-rule">RULE NO.{p.num}</div>
-                  <div className="work-card-title">{p.title}</div>
-                  <div className="work-card-desc">{p.desc}</div>
-                  <a href={p.url} target="_blank" rel="noreferrer" className="work-card-link">
-                    VIEW PROJECT <span>→</span>
-                  </a>
-                </div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
-      </div>
-    </section>
-  );
-};
 
-const GodTierHero = ({ profile }) => {
-  return (
-    <section className="gt-hero" id="hero-top">
-      <div className="gt-hero-red"></div>
-      <div className="gt-hero-black"></div>
-      
-      <div className="gt-hero-grid"></div>
+        {/* The Rabbit Animation */}
+        <div style={{ position: 'absolute', right: '10%', bottom: '10%', width: '400px', height: '400px', zIndex: 6, pointerEvents: 'none' }}>
+          <DotLottieReact
+            src="/rabbit.json"
+            loop
+            autoplay
+          />
+        </div>
 
-      <div className="gt-hero-content">
-        <div className="gt-eyebrow">PORTFOLIO · 2025 · INITIATE</div>
-        <h1 className="gt-title">
-          <span className="gt-yash">YASH</span>
-          <span className="gt-bana">BANA</span>
-        </h1>
-        <div className="gt-subtitle">{profile ? profile.title : "DESIGNER • DEVELOPER • CREATOR"}</div>
-      </div>
-      
-      <div className="gt-kanji">
-        無<br/>限<br/>の<br/>力
-      </div>
+      </section>
 
-      <div className="gt-scroll">
-        <div className="gt-scroll-text">SCROLL <span className="gt-scroll-arrow">↓</span></div>
-      </div>
-    </section>
-  );
-};
-
-const GodTierWhatWeDo = () => {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
-  });
-
-  const m1 = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
-  const m2 = useTransform(scrollYProgress, [0, 1], ["-50%", "0%"]);
-
-  const rules = [
-    { num: '01', title: 'THE GUMROAD WAY', desc: 'Build fast. Test in the wild. Ship before you feel ready.' },
-    { num: '02', title: 'START SMALL', desc: "Don\'t boil the ocean. Build a puddle and scale it." },
-    { num: '03', title: 'GET BETTER TOGETHER', desc: 'Learn from the users. Iterate with the community.' },
-    { num: '04', title: 'LEARN QUICKLY', desc: 'Data over ego. Fail fast, pivot faster.' }
-  ];
-
-  return (
-    <section className="gt-wwd what-we-do-section" ref={ref}>
-      <div className="gt-wwd-bg"></div>
-      <div className="gt-wwd-grid-bg"></div>
-
-      <div className="gt-wwd-marquees">
-        <motion.div style={{ x: m1 }} className="gt-marquee">
-          <span>GREAT IDEAS • MULTIPLY • EXECUTE • </span>
-          <span>GREAT IDEAS • MULTIPLY • EXECUTE • </span>
-        </motion.div>
-        <motion.div style={{ x: m2 }} className="gt-marquee outline">
-          <span>FIND OUT WHAT WORKS • ADAPT • PROTOTYPE • </span>
-          <span>FIND OUT WHAT WORKS • ADAPT • PROTOTYPE • </span>
+      {/* CRAZY MARQUEE */}
+      <div className="crazy-marquee-container bg-purple-crazy">
+        <motion.div style={{ x: marquee1 }} className="crazy-marquee-track">
+          <span>CODE • DESIGN • ANIMATE • COOK • </span>
+          <span>CODE • DESIGN • ANIMATE • COOK • </span>
+          <span>CODE • DESIGN • ANIMATE • COOK • </span>
+          <span>CODE • DESIGN • ANIMATE • COOK • </span>
         </motion.div>
       </div>
 
-      <div className="gt-wwd-content">
-        <motion.div 
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="gt-wwd-header"
-        >
-          <div className="gt-wwd-pre">STRATEGY.</div>
-          <h2 className="gt-wwd-title">
-            MAKE IDEAS <span className="text-red">REAL.</span>
-          </h2>
-        </motion.div>
-
-        <div className="gt-wwd-cards">
-          {rules.map((rule, i) => (
+      {/* WHO AM I */}
+      <section className="neo-who-am-i bg-blue-crazy">
+        <div className="neo-grid-layout">
+          <motion.div 
+            initial={{ y: 100, opacity: 0, rotate: -5 }}
+            whileInView={{ y: 0, opacity: 1, rotate: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ type: "spring", stiffness: 150, damping: 15 }}
+            className="neo-panel bg-white neo-bio-panel"
+          >
+            <h2 className="neo-section-title">WHO AM I</h2>
+            <p className="neo-bio-text">
+              {profile ? profile.about : "Hey, nice to meet you I am Yash Bana, I am a full stack dev and a student too! And I love coding websites, automate tasks though my favourite time is when I am coding Minecraft plugins, mods!"}
+            </p>
             <motion.div 
-              key={i} 
-              className="gt-rule-card"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.15 }}
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              className="neo-photo-frame bg-purple-crazy" style={{ transform: 'rotate(-3deg)' }}
             >
-              <div className="gt-rule-top">
-                <span className="gt-rule-num">{rule.num}</span>
-                <div className="gt-rule-line"></div>
-              </div>
-              <h3 className="gt-rule-title">{rule.title}</h3>
-              <p className="gt-rule-desc">{rule.desc}</p>
+               <img className="neo-photo-fair" src="/image.jpg" alt="Yash Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+               <div className="neo-photo-name bg-cyan-crazy">Yash Bana</div>
             </motion.div>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ y: 100, opacity: 0, rotate: 5 }}
+            whileInView={{ y: 0, opacity: 1, rotate: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ type: "spring", stiffness: 150, damping: 15, delay: 0.2 }}
+            className="neo-panel bg-indigo-crazy neo-stats-panel"
+          >
+            <h2 className="neo-section-title" style={{ color: '#fff' }}>MENU & MAIN</h2>
+            <div className="neo-stats-container">
+              <motion.div whileHover={{ y: -10 }} className="neo-stat-box bg-cyan-crazy">
+                <div className="neo-stat-num">{profile ? profile.projects : "15+"}</div>
+                <div className="neo-stat-label">PROJECTS</div>
+              </motion.div>
+              <motion.div whileHover={{ y: -10 }} className="neo-stat-box bg-white">
+                <div className="neo-stat-num">{profile ? profile.years : "2+"}</div>
+                <div className="neo-stat-label">YEARS</div>
+              </motion.div>
+            </div>
+            
+            <div className="neo-menu-links" style={{ padding: 0 }}>
+               <FancyTextHover 
+                 links={[
+                   { label: 'Github', href: 'https://github.com/yashbana322' },
+                   { label: 'Email Me', href: 'mailto:banayash661@gmail.com' },
+                   { label: 'Instagram', href: 'https://www.instagram.com/riaas_17/' }
+                 ]} 
+               />
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* REVERSE MARQUEE */}
+      <div className="crazy-marquee-container bg-pink">
+        <motion.div style={{ x: marquee2 }} className="crazy-marquee-track">
+          <span>FRONTEND • BACKEND • THREE.JS • MOTION • </span>
+          <span>FRONTEND • BACKEND • THREE.JS • MOTION • </span>
+          <span>FRONTEND • BACKEND • THREE.JS • MOTION • </span>
+          <span>FRONTEND • BACKEND • THREE.JS • MOTION • </span>
+        </motion.div>
+      </div>
+
+      {/* GUMROAD ANIMATION REPLICA - WRAPPED */}
+      <section className="neo-gumroad-section bg-indigo-crazy" style={{ borderBottom: '6px solid #111', padding: '8vw 3vw' }}>
+         <motion.h2 
+           initial={{ opacity: 0, scale: 0.8 }}
+           whileInView={{ opacity: 1, scale: 1 }}
+           viewport={{ once: true }}
+           transition={{ type: "spring", stiffness: 200, damping: 10 }}
+           className="neo-section-title" style={{ textAlign: 'center', marginBottom: '40px', color: '#fff', fontSize: 'clamp(50px, 8vw, 100px)' }}
+         >
+           THE PHILOSOPHY
+         </motion.h2>
+         
+         <motion.div 
+           initial={{ y: 50, opacity: 0 }}
+           whileInView={{ y: 0, opacity: 1 }}
+           viewport={{ once: true }}
+           transition={{ type: "spring", stiffness: 100, damping: 20 }}
+           className="neo-panel bg-white" style={{ padding: '0', overflow: 'hidden', maxWidth: '1200px', margin: '0 auto', boxShadow: '20px 20px 0 #111' }}
+         >
+            <WhatWeDoSection />
+         </motion.div>
+      </section>
+
+      {/* PROJECTS SECTION */}
+      <section className="neo-work-section" style={{ background: '#fdfdfd' }}>
+        <div className="neo-work-sticky bg-cyan-crazy" style={{ flex: '0 0 35%', padding: '5vw', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+          
+          <div style={{ paddingTop: '80px', position: 'relative' }}>
+            <motion.h2 
+              initial={{ x: -50, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              className="neo-section-title"
+            >
+              MY WORKS
+            </motion.h2>
+            
+            <div style={{ position: 'relative', marginTop: '20px' }}>
+              {/* The Cat Animation Sitting on the top right corner of the description box */}
+              <div style={{ position: 'absolute', top: '-185px', right: '-20px', width: '250px', height: '250px', zIndex: 10, pointerEvents: 'none' }}>
+                <DotLottieReact
+                  src="https://lottie.host/8cf4ba71-e5fb-44f3-8134-178c4d389417/0CCsdcgNIP.json"
+                  loop
+                  autoplay
+                  style={{ width: '100%', height: '100%' }}
+                />
+              </div>
+
+              <motion.p 
+                initial={{ x: -50, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="neo-work-desc neo-bio-text bg-white"
+                style={{ position: 'relative', zIndex: 5 }}
+              >
+                <strong>CHECK THIS OUT!</strong> Here are some of the web experiences I've developed. High performance, top-tier animations, and full-stack architecture.
+              </motion.p>
+            </div>
+          </div>
+
+        </div>
+        <div className="neo-work-scroll bg-purple-crazy" style={{ flex: '1', padding: '5vw', display: 'flex', flexDirection: 'column', gap: '5vw' }}>
+          {[
+            { title: "Lusion", num: "01", img: "/lusion.png", bg: "bg-white", url: "https://lusion.co/" },
+            { title: "Buzzworthy", num: "02", img: "/buzzworthy.png", bg: "bg-cyan-crazy", url: "https://buzzworthystudio.com/" },
+            { title: "ET Studio", num: "03", img: "/etstudio.png", bg: "bg-indigo-crazy", url: "https://www.e-t.studio/" },
+            { title: "Minecraft Hub", num: "04", img: "/minecraft.png", bg: "bg-pink", url: "https://everything-you-need-minecraft-hub-d-nu.vercel.app/" }
+          ].map((work, i) => (
+            <motion.a 
+              href={work.url} target="_blank" rel="noreferrer" 
+              className={`neo-work-item ${work.bg}`}
+              key={i}
+              initial={{ x: 100, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ type: "spring", stiffness: 100, damping: 15, delay: i * 0.1 }}
+              whileHover={{ scale: 1.05, rotate: i % 2 === 0 ? 2 : -2 }}
+            >
+               <div className="neo-work-img" style={{backgroundImage:`url('${work.img}')`}}></div>
+               <h3 className="neo-work-title" style={{ color: work.bg === 'bg-indigo-crazy' ? '#fff' : '#111' }}>RULE NO.{work.num} // {work.title}</h3>
+            </motion.a>
           ))}
         </div>
+      </section>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="gt-wwd-cta-box"
+      {/* LET'S BUILD TOGETHER */}
+      <section className="neo-hero yash-hero-bg" style={{ paddingBottom: '100px', borderBottom: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+        <motion.div
+           initial={{ scale: 0.8, opacity: 0 }}
+           whileInView={{ scale: 1, opacity: 1 }}
+           viewport={{ once: true }}
+           transition={{ type: "spring", stiffness: 200, damping: 15 }}
         >
-          <div className="gt-cta-text">WE WANT YOU TO TRY THEM. LOTS OF THEM.</div>
-          <div className="gt-cta-sub">You don't have to be a tech expert. Take what you know and sell it.</div>
+          <h1 className="neo-mega-text">READY TO</h1>
+          <h1 className="neo-mega-text outline" style={{ color: 'transparent', WebkitTextStroke: '4px #111' }}>COOK?</h1>
         </motion.div>
-      </div>
-    </section>
-  );
-};
-
-const DeadpoolSpiderSection = ({ profile }) => {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
-  });
-  
-  const spiderY = useTransform(scrollYProgress, [0, 0.4, 0.6, 1], ["-120%", "30%", "30%", "-120%"]);
-
-  return (
-    <section className="dp-section" id="manga-section" ref={ref}>
-      <div className="dp-halftone"></div>
-      <div className="dp-noise"></div>
-
-
-
-      <div className="dp-grid">
-        <div className="dp-panel-left manga-reveal">
-          <div className="dp-who-header">
-            <h2 className="dp-title">WHO AM I</h2>
-            <div className="dp-scratch-line"></div>
-          </div>
-          <p className="dp-desc">
-            {profile ? profile.about : "Hey nice to meet you I am Yash Bana, I am a full stack dev and a student too! And I love coding websites, automate tasks though my favourite time is when I am coding Minecraft plugins, mods!"}
-          </p>
-          <div className="dp-skills">
-            <span className="dp-badge">React</span>
-            <span className="dp-badge">TypeScript</span>
-            <span className="dp-badge">Three.js</span>
-            <span className="dp-badge">Motion</span>
-          </div>
-        </div>
-
-        <div className="dp-panel-right manga-reveal">
-          <div className="dp-menu-header">
-            <div className="dp-top-text">MENU & MAIN</div>
-            <div className="dp-bot-text">COMMAND SELECT</div>
-          </div>
-          
-          <div className="dp-stats-container">
-            <div className="dp-stat-box red-box">
-              <div className="dp-stat-num">{profile ? profile.projects : "15+"}</div>
-              <div className="dp-stat-label">PROJECTS</div>
-            </div>
-            <div className="dp-stat-box white-box">
-              <div className="dp-stat-num">{profile ? profile.years : "2+"}</div>
-              <div className="dp-stat-label">YEARS</div>
-            </div>
-          </div>
-          
-          <div className="dp-name-watermark">YASH BANA</div>
-          <div className="dp-big-number">01</div>
-        </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 };
 
@@ -682,51 +699,9 @@ function App() {
           </div>
 
           <div id="main-content" className={splashGone ? 'visible' : ''}>
-        <div className="nav-dots">
-          <div className="dot active" onClick={() => scrollTo('top')}></div>
-          <div className="dot" onClick={() => scrollTo('.manga-section')}></div>
-          <div className="dot" onClick={() => scrollTo('.work-section')}></div>
-          <div className="dot" onClick={() => scrollTo('.what-we-do-section')}></div>
-        </div>
-
-        <GodTierHero profile={profile} />
-
-        {/* NEW DEADPOOL SPIDER SECTION */}
-        <DeadpoolSpiderSection profile={profile} />
-
-        <WorkSection setCursorHovering={setIsHoveringWork} />
-        
-        {/* WHAT WE DO SECTION */}
-        <WhatWeDoSection />
-
-        <section className="contact-section" id="contact-section">
-          <div className="contact-hatch"></div>
-          <div className="contact-grid">
-            <div>
-              <div className="contact-heading reveal">LET'S<br />WORK<br />TOGETHER</div>
-              <p className="reveal" style={{ marginTop: 16, fontSize: 17, color: 'rgba(0,0,0,0.6)', fontWeight: 600, letterSpacing: 1 }}>Currently available for freelance & full-time.</p>
-            </div>
-            <div className="contact-links">
-              <a href="mailto:banayash661@gmail.com" target="_blank" rel="noopener noreferrer" className="contact-link reveal"><span>✉</span><span>Email Me</span><span className="link-arrow">→</span></a>
-              <a href="https://github.com/yashbana322" target="_blank" rel="noopener noreferrer" className="contact-link reveal"><span>◈</span><span>GitHub</span><span className="link-arrow">→</span></a>
-              <a href="https://www.instagram.com/riaas_17/" target="_blank" rel="noopener noreferrer" className="contact-link reveal"><span>◇</span><span>Instagram</span><span className="link-arrow">→</span></a>
-            </div>
+            <NeoYashPortfolio setCurrentSite={setCurrentSite} profile={profile} />
           </div>
-        </section>
-
-        {/* PARTNER TEASER SECTION */}
-        <section className="partner-teaser-section">
-          <div className="partner-teaser-content">
-            <h2 className="partner-teaser-text">
-              Hey perhaps you missed something!? Didn't you? Meet my partner
-            </h2>
-            <button className="partner-teaser-arrow" onClick={() => setCurrentSite('shivanshu')}>
-              ➜
-            </button>
-          </div>
-        </section>
-      </div>
-      </>
+        </>
       )}
     </>
   );

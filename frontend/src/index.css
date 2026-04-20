@@ -916,3 +916,51 @@ body{background:#0a0a0a;color:#fff;font-family:'Rajdhani',sans-serif;overflow-x:
 @media (max-width: 700px) {
   .neo-about-duo { grid-template-columns: 1fr !important; }
 }
+
+/* YASH CRAZY NEO COLORS & ANIMATIONS */
+.bg-cyan-crazy { background-color: #38bdf8 !important; }
+.bg-purple-crazy { background-color: #c084fc !important; }
+.bg-blue-crazy { background-color: #60a5fa !important; }
+.bg-indigo-crazy { background-color: #818cf8 !important; }
+
+.yash-hero-bg {
+  background-color: #38bdf8 !important;
+  background-image: 
+    radial-gradient(circle at 10% 20%, #c084fc 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, #fbcfe8 0%, transparent 40%) !important;
+  padding-top: 150px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.crazy-star {
+  position: absolute;
+  top: 10%;
+  right: 5%;
+  font-size: clamp(100px, 20vw, 250px);
+  color: #111;
+  z-index: 1;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.crazy-marquee-container {
+  width: 100%;
+  overflow: hidden;
+  border-bottom: 6px solid #111;
+  padding: 20px 0;
+  display: flex;
+}
+
+.crazy-marquee-track {
+  display: flex;
+  white-space: nowrap;
+  font-family: 'Bebas Neue', cursive;
+  font-size: clamp(50px, 8vw, 80px);
+  color: #111;
+  letter-spacing: 4px;
+}
+.crazy-marquee-track span {
+  padding: 0 40px;
+}
+
