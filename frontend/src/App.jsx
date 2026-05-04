@@ -318,6 +318,8 @@ const ProfessionalBrutalismPortfolio = ({ profile }) => {
   );
 };
 
+import LusionLoader from './components/LusionLoader';
+
 function App() {
   const [profile, setProfile] = useState(null);
   const [splashGone, setSplashGone] = useState(false);
@@ -339,16 +341,12 @@ function App() {
       script.async = true;
       document.body.appendChild(script);
     }
-
-    const splashTimeout = setTimeout(() => {
-      setSplashGone(true);
-    }, 2500);
-
-    return () => clearTimeout(splashTimeout);
   }, []);
 
   return (
     <>
+      {!splashGone && <LusionLoader onComplete={() => setSplashGone(true)} />}
+      
       {showWhoWeAre ? (
         <WhoWeAre onBack={() => setShowWhoWeAre(false)} />
       ) : (
