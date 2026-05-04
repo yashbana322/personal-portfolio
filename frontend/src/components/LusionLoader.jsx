@@ -41,7 +41,6 @@ export default function LusionLoader({ onComplete }) {
       if (current >= 100) {
         setProgress(100);
         clearInterval(timer);
-        // Transition timeline
         setTimeout(() => setPhase(1), 100); 
       } else {
         setProgress(Math.floor(current));
@@ -53,103 +52,110 @@ export default function LusionLoader({ onComplete }) {
 
   useEffect(() => {
     if (phase === 1) {
-      setTimeout(() => setPhase(2), 500); // Morph to Y
+      setTimeout(() => setPhase(2), 600);
     } else if (phase === 2) {
-      setTimeout(() => setPhase(3), 800); // Fly through
+      setTimeout(() => setPhase(3), 800); 
     } else if (phase === 3) {
-      setTimeout(() => setPhase(4), 1000); // Fade out overlay
-      setTimeout(onComplete, 1500); // Destroy loader
+      setTimeout(() => setPhase(4), 1300);
+      setTimeout(onComplete, 1600); 
     }
   }, [phase, onComplete]);
 
-  // SVG Paths
-  const phase1Path = "M 25 35 L 42 45 M 58 45 L 75 35 M 50 65 L 50 85"; // Floating broken lines
-  const phase2Path = "M 30 30 L 50 50 M 50 50 L 70 30 M 50 50 L 50 80"; // Perfect Y shape
+  // SVG Paths - Chunkier and more brutalist
+  const phase1Path = "M 50 70 L 80 90 M 120 90 L 150 70 M 100 130 L 100 160";
+  const phase2Path = "M 60 60 L 100 100 M 100 100 L 140 60 M 100 100 L 100 160";
 
   return (
-    <AnimatePresence>
-      {phase < 4 && (
-        <motion.div
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 99999,
-            backgroundColor: '#000000',
-            display: 'flex', justifyContent: 'center', alignItems: 'center',
-            color: '#fff', fontFamily: "'Inter', sans-serif"
-          }}
-        >
-          {/* THE Y SHAPE / FLY THROUGH CONTAINER */}
-          <motion.div
-            animate={
-              phase === 3
-                ? { scale: 250, opacity: 0 } // Massively scale to fly through the gap
-                : { scale: 1, opacity: 1 }
-            }
-            transition={
-              phase === 3
-                ? { duration: 1.5, ease: [0.7, 0, 0.1, 1] }
-                : { duration: 0 }
-            }
-            style={{ 
-              position: 'relative', 
-              width: '100px', 
-              height: '100px',
-              // Set transform origin exactly at the top gap of the Y (x: 50, y: 30)
-              transformOrigin: '50% 30%' 
-            }}
-          >
-            {/* Phase 0: Progress Bar */}
-            <AnimatePresence>
-              {phase === 0 && (
-                <motion.svg 
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.2 }}
-                  width="100%" height="100%" viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0 }}
+    <motion.div
+      animate={{ opacity: phase === 4 ? 0 : 1 }}
+      transition={{ duration: 0.3 }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 99999,
+        pointerEvents: 'none',
+        display: 'flex', justifyContent: 'center', alignItems: 'center',
+        color: '#fff', fontFamily: "'Inter', sans-serif"
+      }}
+    >
+      <svg width="100vw" height="100vh" style={{ position: 'absolute', inset: 0 }}>
+        <defs>
+          <mask id="y-hole-mask">
+            {/* White background = visible mask */}
+            <rect width="100%" height="100%" fill="white" />
+            <g transform="translate(calc(50vw - 100px), calc(50vh - 100px))">
+              {phase >= 1 && (
+                <motion.g
+                  animate={{ scale: phase === 3 ? 300 : 1, rotate: phase === 3 ? 45 : 0 }}
+                  transition={{ duration: 1.5, ease: [0.7, 0, 0.1, 1] }}
+                  style={{ transformOrigin: '100px 60px' }}
                 >
-                  {/* Background grey line */}
-                  <line x1="20" y1="50" x2="80" y2="50" stroke="#333" strokeWidth="6" strokeLinecap="square" />
-                  {/* Foreground white line */}
-                  <line x1="20" y1="50" x2={20 + (progress / 100) * 60} y2="50" stroke="#fff" strokeWidth="6" strokeLinecap="square" />
-                </motion.svg>
+                  <motion.path
+                    animate={{ d: phase === 1 ? phase1Path : phase2Path }}
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    stroke="black" // Black stroke creates the hole
+                    strokeWidth="24"
+                    strokeLinecap="square"
+                    fill="none"
+                  />
+                </motion.g>
               )}
-            </AnimatePresence>
+            </g>
+          </mask>
+        </defs>
 
-            {/* Phase 1 & 2: Floating Lines Morphing to Y */}
-            {phase >= 1 && (
-              <motion.svg 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                width="100%" height="100%" viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0 }}
-              >
-                <motion.path
-                  initial={{ d: phase1Path }}
-                  animate={{ d: phase === 1 ? phase1Path : phase2Path }}
-                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  stroke="#fff"
-                  strokeWidth="8"
-                  strokeLinecap="square"
-                  fill="none"
-                />
-              </motion.svg>
+        {/* The Black Overlay masked by the Y hole */}
+        <rect width="100%" height="100%" fill="#000" mask="url(#y-hole-mask)" />
+
+        {/* The Visible White Elements */}
+        <g transform="translate(calc(50vw - 100px), calc(50vh - 100px))">
+          {/* Phase 0: Progress Bar */}
+          <AnimatePresence>
+            {phase === 0 && (
+              <motion.g exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.2 }}>
+                <line x1="40" y1="100" x2="160" y2="100" stroke="#222" strokeWidth="8" strokeLinecap="square" />
+                <line x1="40" y1="100" x2={40 + progress * 1.2} y2="100" stroke="#fff" strokeWidth="8" strokeLinecap="square" />
+              </motion.g>
             )}
-          </motion.div>
+          </AnimatePresence>
 
-          {/* ODOMETER NUMBER */}
-          <motion.div
-            animate={{ opacity: phase >= 3 ? 0 : 1, y: phase >= 3 ? 50 : 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            style={{
-              position: 'absolute', bottom: '4vw', left: '4vw',
-              fontSize: 'clamp(80px, 15vw, 200px)', fontWeight: '400',
-              lineHeight: 1, letterSpacing: '-0.05em'
-            }}
-          >
-            <Odometer value={progress} />
-          </motion.div>
-          
-        </motion.div>
-      )}
-    </AnimatePresence>
+          {/* Phase 1, 2, 3: The White Y */}
+          {phase >= 1 && phase < 4 && (
+            <motion.g
+              animate={{ scale: phase === 3 ? 300 : 1, rotate: phase === 3 ? 45 : 0 }}
+              transition={{ duration: 1.5, ease: [0.7, 0, 0.1, 1] }}
+              style={{ transformOrigin: '100px 60px' }}
+            >
+              <motion.path
+                initial={{ opacity: 0 }}
+                animate={{ 
+                  d: phase === 1 ? phase1Path : phase2Path,
+                  opacity: phase === 3 ? 0 : 1 
+                }}
+                transition={{ 
+                  d: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+                  opacity: { duration: 0.6, ease: "easeIn", delay: 0.2 } // Fade out shortly after zoom starts
+                }}
+                stroke="#fff"
+                strokeWidth="24"
+                strokeLinecap="square"
+                fill="none"
+              />
+            </motion.g>
+          )}
+        </g>
+      </svg>
+
+      {/* ODOMETER NUMBER */}
+      <motion.div
+        animate={{ opacity: phase >= 3 ? 0 : 1, y: phase >= 3 ? 50 : 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        style={{
+          position: 'absolute', bottom: '4vw', left: '4vw',
+          fontSize: 'clamp(120px, 20vw, 250px)', fontWeight: '500',
+          lineHeight: 1, letterSpacing: '-0.05em'
+        }}
+      >
+        <Odometer value={progress} />
+      </motion.div>
+    </motion.div>
   );
 }
