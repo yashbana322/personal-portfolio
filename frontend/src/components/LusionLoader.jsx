@@ -30,24 +30,31 @@ export default function LusionLoader({ onComplete }) {
   const [phase, setPhase] = useState(0); 
 
   useEffect(() => {
-    let current = 0;
-    const duration = 2500; 
-    const intervalTime = 20;
-    const steps = duration / intervalTime;
-    const increment = 100 / steps;
+    let animationFrameId;
+    const duration = 4500; // 4.5 seconds for a deliberate, slow build-up
+    const startTime = performance.now();
 
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= 100) {
-        setProgress(100);
-        clearInterval(timer);
-        setTimeout(() => setPhase(1), 100); 
+    // Easing function for a luxurious slow-down at the end
+    const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
+
+    const updateProgress = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      
+      const currentProgress = Math.floor(easeOutQuart(t) * 100);
+      setProgress(currentProgress);
+
+      if (t < 1) {
+        animationFrameId = requestAnimationFrame(updateProgress);
       } else {
-        setProgress(Math.floor(current));
+        setProgress(100);
+        setTimeout(() => setPhase(1), 150); 
       }
-    }, intervalTime);
+    };
 
-    return () => clearInterval(timer);
+    animationFrameId = requestAnimationFrame(updateProgress);
+
+    return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
   useEffect(() => {

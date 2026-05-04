@@ -326,6 +326,9 @@ function App() {
   const [showWhoWeAre, setShowWhoWeAre] = useState(false);
 
   useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
     window.scrollTo(0, 0);
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
