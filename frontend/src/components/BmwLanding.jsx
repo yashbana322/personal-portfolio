@@ -600,10 +600,10 @@ export default function BmwLanding({ onNavigateToWhoWeAre }) {
             
             <Suspense fallback={<Loader />}>
               <PresentationControls
-                global
-                cursor={false}
-                config={{ mass: 1, tension: 100, friction: 20 }}
-                snap={{ mass: 1, tension: 15, friction: 25 }}
+                global={false}
+                cursor={true}
+                config={{ mass: 1, tension: 170, friction: 26 }}
+                snap={true}
                 rotation={[0, 0, 0]}
                 polar={[-Math.PI / 4, Math.PI / 4]}
                 azimuth={[-Math.PI / 2, Math.PI / 2]}
