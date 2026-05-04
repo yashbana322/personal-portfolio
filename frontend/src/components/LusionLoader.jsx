@@ -4,10 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 function Odometer({ value }) {
   const digits = value.toString().padStart(3, '0').split('');
   return (
-    <div style={{ display: 'flex', height: '1em', overflow: 'hidden', fontVariantNumeric: 'tabular-nums' }}>
+    <div style={{ display: 'flex', height: '1em', overflow: 'hidden' }}>
       {digits.map((digit, i) => (
-        <div key={i} style={{ position: 'relative', width: '0.65em', height: '1em' }}>
-          <AnimatePresence mode="popLayout">
+        <div key={i} style={{ position: 'relative', width: '0.62em', height: '1em' }}>
+          <AnimatePresence>
             <motion.div
               key={digit}
               initial={{ y: '100%' }}
@@ -56,14 +56,14 @@ export default function LusionLoader({ onComplete }) {
     } else if (phase === 2) {
       setTimeout(() => setPhase(3), 800); 
     } else if (phase === 3) {
-      setTimeout(() => setPhase(4), 1300);
-      setTimeout(onComplete, 1600); 
+      setTimeout(() => setPhase(4), 1000);
+      setTimeout(onComplete, 1300); 
     }
   }, [phase, onComplete]);
 
-  // SVG Paths - Chunkier and more brutalist
-  const phase1Path = "M 50 70 L 80 90 M 120 90 L 150 70 M 100 130 L 100 160";
-  const phase2Path = "M 60 60 L 100 100 M 100 100 L 140 60 M 100 100 L 100 160";
+  // Center is exactly at (0,0) for the gap between the top arms
+  const phase1Path = "M -50 10 L -20 30 M 20 30 L 50 10 M 0 70 L 0 100";
+  const phase2Path = "M -40 0 L 0 40 M 0 40 L 40 0 M 0 40 L 0 100";
 
   return (
     <motion.div
@@ -71,9 +71,9 @@ export default function LusionLoader({ onComplete }) {
       transition={{ duration: 0.3 }}
       style={{
         position: 'fixed', inset: 0, zIndex: 99999,
-        pointerEvents: 'none',
-        display: 'flex', justifyContent: 'center', alignItems: 'center',
-        color: '#fff', fontFamily: "'Inter', sans-serif"
+        backgroundColor: '#000', // Base fallback
+        color: '#fff', fontFamily: "'Inter', sans-serif",
+        display: 'flex', justifyContent: 'center', alignItems: 'center'
       }}
     >
       <svg width="100vw" height="100vh" style={{ position: 'absolute', inset: 0 }}>
@@ -81,12 +81,14 @@ export default function LusionLoader({ onComplete }) {
           <mask id="y-hole-mask">
             {/* White background = visible mask */}
             <rect width="100%" height="100%" fill="white" />
-            <g transform="translate(calc(50vw - 100px), calc(50vh - 100px))">
+            
+            {/* Nested SVG to place (0,0) perfectly in the center of the screen */}
+            <svg x="50%" y="50%" style={{ overflow: 'visible' }}>
               {phase >= 1 && (
                 <motion.g
                   animate={{ scale: phase === 3 ? 300 : 1, rotate: phase === 3 ? 45 : 0 }}
-                  transition={{ duration: 1.5, ease: [0.7, 0, 0.1, 1] }}
-                  style={{ transformOrigin: '100px 60px' }}
+                  transition={{ duration: 1.2, ease: [0.7, 0, 0.1, 1] }}
+                  // Transform origin is naturally (0,0), which is the exact center!
                 >
                   <motion.path
                     animate={{ d: phase === 1 ? phase1Path : phase2Path }}
@@ -98,7 +100,7 @@ export default function LusionLoader({ onComplete }) {
                   />
                 </motion.g>
               )}
-            </g>
+            </svg>
           </mask>
         </defs>
 
@@ -106,13 +108,13 @@ export default function LusionLoader({ onComplete }) {
         <rect width="100%" height="100%" fill="#000" mask="url(#y-hole-mask)" />
 
         {/* The Visible White Elements */}
-        <g transform="translate(calc(50vw - 100px), calc(50vh - 100px))">
+        <svg x="50%" y="50%" style={{ overflow: 'visible' }}>
           {/* Phase 0: Progress Bar */}
           <AnimatePresence>
             {phase === 0 && (
               <motion.g exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.2 }}>
-                <line x1="40" y1="100" x2="160" y2="100" stroke="#222" strokeWidth="8" strokeLinecap="square" />
-                <line x1="40" y1="100" x2={40 + progress * 1.2} y2="100" stroke="#fff" strokeWidth="8" strokeLinecap="square" />
+                <line x1="-60" y1="40" x2="60" y2="40" stroke="#222" strokeWidth="8" strokeLinecap="square" />
+                <line x1="-60" y1="40" x2={-60 + progress * 1.2} y2="40" stroke="#fff" strokeWidth="8" strokeLinecap="square" />
               </motion.g>
             )}
           </AnimatePresence>
@@ -121,8 +123,7 @@ export default function LusionLoader({ onComplete }) {
           {phase >= 1 && phase < 4 && (
             <motion.g
               animate={{ scale: phase === 3 ? 300 : 1, rotate: phase === 3 ? 45 : 0 }}
-              transition={{ duration: 1.5, ease: [0.7, 0, 0.1, 1] }}
-              style={{ transformOrigin: '100px 60px' }}
+              transition={{ duration: 1.2, ease: [0.7, 0, 0.1, 1] }}
             >
               <motion.path
                 initial={{ opacity: 0 }}
@@ -132,7 +133,7 @@ export default function LusionLoader({ onComplete }) {
                 }}
                 transition={{ 
                   d: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-                  opacity: { duration: 0.6, ease: "easeIn", delay: 0.2 } // Fade out shortly after zoom starts
+                  opacity: { duration: 0.4, ease: "easeIn", delay: 0.1 } // Fast fade out to reveal hole
                 }}
                 stroke="#fff"
                 strokeWidth="24"
@@ -141,7 +142,7 @@ export default function LusionLoader({ onComplete }) {
               />
             </motion.g>
           )}
-        </g>
+        </svg>
       </svg>
 
       {/* ODOMETER NUMBER */}
@@ -150,8 +151,8 @@ export default function LusionLoader({ onComplete }) {
         transition={{ duration: 0.5, ease: "easeOut" }}
         style={{
           position: 'absolute', bottom: '4vw', left: '4vw',
-          fontSize: 'clamp(120px, 20vw, 250px)', fontWeight: '500',
-          lineHeight: 1, letterSpacing: '-0.05em'
+          fontSize: 'clamp(100px, 18vw, 250px)', fontWeight: '500',
+          lineHeight: 1, letterSpacing: '-0.04em'
         }}
       >
         <Odometer value={progress} />
