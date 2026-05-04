@@ -2,25 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function Odometer({ value }) {
-  const digits = value.toString().padStart(3, '0').split('');
+  const formatted = value.toString().padStart(3, '0');
   return (
-    <div style={{ display: 'flex', height: '1em', overflow: 'hidden' }}>
-      {digits.map((digit, i) => (
-        <div key={i} style={{ position: 'relative', width: '0.62em', height: '1em' }}>
-          <AnimatePresence>
-            <motion.div
-              key={digit}
-              initial={{ y: '100%' }}
-              animate={{ y: '0%' }}
-              exit={{ y: '-100%' }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            >
-              {digit}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      ))}
+    <div style={{ display: 'flex', height: '1em', overflow: 'hidden', fontVariantNumeric: 'tabular-nums' }}>
+      {formatted}
     </div>
   );
 }
