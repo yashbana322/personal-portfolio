@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import LiquidImage from './LiquidImage';
 
 const projects = [
   { name: 'LUSION ARCHIVE', category: 'WebGL & Motion', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop' },
@@ -87,11 +88,12 @@ export default function Works({ mousePos }) {
               boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
             }}
           >
-            <img 
-              src={projects[hoveredIndex].img} 
-              alt="Project Preview" 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-            />
+            <React.Suspense fallback={<div style={{ background: '#111', width: '100%', height: '100%' }} />}>
+              <LiquidImage 
+                src={projects[hoveredIndex].img} 
+                mousePos={mousePos} 
+              />
+            </React.Suspense>
           </motion.div>
         )}
       </AnimatePresence>

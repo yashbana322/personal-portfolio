@@ -4,6 +4,7 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import MusicPlayer from './components/ui/music-player';
 import BmwLanding from './components/BmwLanding';
 import WhoWeAre from './components/WhoWeAre';
+import Cursor from './components/Cursor';
 import './index.css';
 
 const Terminal = () => {
@@ -348,6 +349,7 @@ function App() {
 
   return (
     <>
+      <Cursor />
       {!splashGone && <LusionLoader onComplete={() => setSplashGone(true)} />}
       
       {showWhoWeAre ? (
