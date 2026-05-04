@@ -85,7 +85,7 @@ function Annotations() {
   );
 }
 
-function BmwModel({ onLanded, hasLanded }) {
+function BmwModel({ onLanded, hasLanded, isLoaded }) {
   const { scene } = useGLTF('/bmw.glb');
   const positionGroup = useRef();
 
@@ -111,6 +111,10 @@ function BmwModel({ onLanded, hasLanded }) {
         positionGroup.current.position.set(0, 0, 0);
         positionGroup.current.rotation.set(0.5, -0.8, 0.15);
       }
+    } else if (!isLoaded) {
+      // Suspend it high up while loader is running so we don't see it sitting on the ground
+      positionGroup.current.position.set(0, 15, -5);
+      positionGroup.current.rotation.set(1.5, -1.5, -0.5);
     } else {
       document.body.style.overflow = 'hidden';
       gsap.fromTo(
@@ -134,7 +138,7 @@ function BmwModel({ onLanded, hasLanded }) {
 
     return () => { document.body.style.overflow = 'auto'; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene]);
+  }, [scene, isLoaded]);
 
   useFrame(() => {
     if (!hasLanded) return;
@@ -551,7 +555,7 @@ function FluidBackground() {
   );
 }
 
-export default function BmwLanding({ onNavigateToWhoWeAre }) {
+export default function BmwLanding({ onNavigateToWhoWeAre, isLoaded }) {
   const [hasLanded, setHasLanded] = useState(false);
   const [selectedTech, setSelectedTech] = useState(null);
   const [isHero, setIsHero] = useState(true);
@@ -608,7 +612,7 @@ export default function BmwLanding({ onNavigateToWhoWeAre }) {
                 polar={[-Math.PI / 4, Math.PI / 4]}
                 azimuth={[-Math.PI / 2, Math.PI / 2]}
               >
-                <BmwModel onLanded={() => setHasLanded(true)} hasLanded={hasLanded} />
+                <BmwModel onLanded={() => setHasLanded(true)} hasLanded={hasLanded} isLoaded={isLoaded} />
               </PresentationControls>
               <Environment preset="studio" />
               <ContactShadows position={[0, -1.5, 0]} opacity={0.6} scale={20} blur={2.5} far={4} color="#000000" />

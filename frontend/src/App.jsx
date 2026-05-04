@@ -353,7 +353,7 @@ function App() {
       {showWhoWeAre ? (
         <WhoWeAre onBack={() => setShowWhoWeAre(false)} />
       ) : (
-        <BmwLanding onNavigateToWhoWeAre={() => setShowWhoWeAre(true)} />
+        <BmwLanding onNavigateToWhoWeAre={() => setShowWhoWeAre(true)} isLoaded={splashGone} />
       )}
     </>
   );
